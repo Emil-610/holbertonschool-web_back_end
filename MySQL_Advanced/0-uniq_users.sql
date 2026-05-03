@@ -1,6 +1,7 @@
--- Script creates table users with fields(id, email, name)
-CREATE TABLE IF NOT EXISTS users(
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    name VARCHAR(255)
-    );
+-- MYSQL advanced project
+-- script that creates a users table
+CREATE TABLE IF NOT EXISTS `users` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `email` VARCHAR(255) NOT NULL UNIQUE,
+    `name` VARCHAR(255)
+);
