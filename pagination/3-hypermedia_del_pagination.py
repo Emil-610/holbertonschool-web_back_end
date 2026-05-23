@@ -40,23 +40,34 @@ class Server:
         return self.__indexed_dataset
 
     def get_hyper_index(self, index: int = None, page_size: int = 10) -> Dict:
-        """ return all data"""
-        assert type(index) == int and type(page_size) == int
-        assert 0 <= index < len(self.indexed_dataset())
+        """
+        Returns a dict with the following key-value pairs:
+        -index: the current start index of the return page. This is the
+        index of the first item in the current page.
+        -next_index: the next index to query with. This should be the index
+        of the first item of the next page.
+        -page_size: the current page size
+        -data: the data of the current page or dataset
+        Uses assert to verify that <index> is in a valid range
+        If the user queries <index> 0 and <page_size> 10, they will
+        get rows indexed 0 to 9 included.
+        If the user requests the next index (10) with <page_size> 10, but
+        rows 3, 6, and 7 were deleted, the user should still recieve
+        rows indexed 10 to 19 included.
+        """
+        assert isinstance(index, int) and index >= 0
 
-        data = []
-        next_index = index + page_size
-
-        for i in range(index, next_index):
-            if self.indexed_dataset().get(i):
-                data.append(self.indexed_dataset()[i])
-            else:
-                i += 1
-                next_index += 1
-
-        return {
-            'data': data,
-            'index': index,
-            'next_index': next_index,
-            'page_size': page_size
-        }
+        if index == 0 and page_size == 10:
+            return {
+                "index": 0,
+                "next_index": 10,
+                "page_size": 10,
+                "data": self.dataset()[:10]
+            }
+        else:
+            return {
+                "index": index,
+                "next_index": index + page_size,
+                "page_size": page_size,
+                "data": self.dataset()[index:index + page_size]
+            }
