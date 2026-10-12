@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-''' Flask app '''
-
+'''Basic Flask App'''
 from flask import Flask, render_template
 from flask_babel import Babel
 
+
 app = Flask(__name__)
-babel = Babel(app)
 
 
 class Config:
-    ''' App config '''
+    '''Configuration'''
     LANGUAGES = ["en", "fr"]
     BABEL_DEFAULT_LOCALE = "en"
     BABEL_DEFAULT_TIMEZONE = "UTC"
@@ -17,12 +16,14 @@ class Config:
 
 app.config.from_object(Config)
 
-
-@app.route("/", methods=["GET"], strict_slashes=False)
-def hello_world():
-    ''' return the template '''
-    return render_template('1-index.html')
+babel = Babel(app)
 
 
-if __name__ == '__main__':
+@app.route("/")
+def index():
+    '''INDEX PAGE'''
+    return render_template('0-index.html')
+
+
+if __name__ == "__main__":
     app.run()

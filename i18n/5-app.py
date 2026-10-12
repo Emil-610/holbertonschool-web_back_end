@@ -1,21 +1,9 @@
 #!/usr/bin/env python3
-''' Flask app '''
-
-from flask import Flask, request, render_template, g
-from flask_babel import Babel, gettext
-
-app = Flask(__name__)
-babel = Babel(app)
+"""5-app.py"""
+from flask import Flask, render_template, request, g
+from flask_babel import Babel
 
 
-class Config:
-    ''' App config '''
-    LANGUAGES = ["en", "fr"]
-    BABEL_DEFAULT_LOCALE = "en"
-    BABEL_DEFAULT_TIMEZONE = "UTC"
-
-
-app.config.from_object(Config)
 users = {
     1: {"name": "Balou", "locale": "fr", "timezone": "Europe/Paris"},
     2: {"name": "Beyonce", "locale": "en", "timezone": "US/Central"},
@@ -24,35 +12,51 @@ users = {
 }
 
 
-@app.before_request
-def before_request():
-    ''' def before request '''
-    g.user = get_user()
+class Config(object):
+    """Babel config"""
+    LANGUAGES = ["en", "fr"]
+    BABEL_DEFAULT_LOCALE = "en"
+    BABEL_DEFAULT_TIMEZONE = "UTC"
+    BABEL_TRANSLATION_DIRECTORIES = "translations"
 
 
-@babel.localeselector
-def get_locale():
-    ''' return best languages '''
-    locale = request.args.get('locale')
-    if locale:
-        return locale
-    return request.accept_languages.best_match(app.config['LANGUAGES'])
-
-
-@app.route("/", methods=["GET"], strict_slashes=False)
-def hello_world():
-    ''' return the template '''
-    return render_template('5-index.html')
+app = Flask(__name__)
+app.config.from_object(Config)
 
 
 def get_user():
-    ''' return the right dictionary '''
-    Id = request.args.get('login_as')
-    if Id and int(Id) in users:
-        return users[int(Id)]
-    else:
+    """Get user from request"""
+    user_id = request.args.get("login_as")
+    if user_id is None:
+        return None
+    try:
+        return users.get(int(user_id))
+    except (ValueError, TypeError):
         return None
 
 
-if __name__ == '__main__':
+@app.before_request
+def before_request():
+    """function"""
+    g.user = get_user()
+
+
+def get_locale():
+    """Get locale from request"""
+    locale = request.args.get("locale")
+    if locale in app.config["LANGUAGES"]:
+        return locale
+    return request.accept_languages.best_match(app.config["LANGUAGES"])
+
+
+babel = Babel(app, locale_selector=get_locale)
+
+
+@app.route("/")
+def index():
+    """Render index"""
+    return render_template("5-index.html")
+
+
+if __name__ == "__main__":
     app.run()
